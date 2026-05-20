@@ -1,7 +1,9 @@
 import sqlite3
+import os
 from pathlib import Path
 
-DB_PATH = Path(__file__).parent / "budget.db"
+_data_dir = Path(os.environ.get("DATA_DIR", str(Path(__file__).parent)))
+DB_PATH = _data_dir / "budget.db"
 
 DDL = """
 CREATE TABLE IF NOT EXISTS categories (
