@@ -1,0 +1,9 @@
+.env
+*.pyc
+__pycache__/
+.DS_Store
+email_body.txt
+venv/
+.vscode/
+.idea/
+*.log
