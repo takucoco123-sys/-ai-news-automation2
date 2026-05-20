@@ -6,6 +6,7 @@ const links = [
   { to: '/categories',    label: 'カテゴリ',       icon: '🏷️' },
   { to: '/budgets',       label: '予算',           icon: '🎯' },
   { to: '/reports',       label: 'レポート',       icon: '📊' },
+  { to: '/settings',      label: '設定',           icon: '⚙️' },
 ];
 
 export default function Sidebar() {
