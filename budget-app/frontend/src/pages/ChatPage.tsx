@@ -79,7 +79,7 @@ export default function ChatPage() {
             amount: Math.abs(tx.amount),
             type: tx.type,
             category_id: cat.id,
-            description: tx.description || null,
+            description: tx.description || undefined,
             date: tx.date || today,
           });
           savedTx = { amount: Math.abs(tx.amount), type: tx.type, category_name: cat.name };
