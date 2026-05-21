@@ -42,7 +42,9 @@ export default function ChatPage() {
     setLoading(true);
 
     try {
-      const apiMessages: ApiMessage[] = history.map((m) => ({ role: m.role, content: m.content }));
+      const apiMessages: ApiMessage[] = history
+        .map((m) => ({ role: m.role, content: m.content }))
+        .filter((m, i) => !(i === 0 && m.role === 'assistant'));
 
       const res = await fetch('/api/chat', {
         method: 'POST',
