@@ -45,8 +45,12 @@ export default async function handler(req: any, res: any) {
     const match = text.match(/\{[\s\S]*\}/);
     const parsed = JSON.parse(match ? match[0] : text);
     res.json(parsed);
-  } catch (err) {
-    console.error('Chat API error:', err);
-    res.status(500).json({ reply: 'エラーが発生しました。もう一度お試しください。', transaction: null });
+  } catch (err: any) {
+    console.error('Chat API error:', err?.status, err?.message, err?.error);
+    const detail = err?.error?.error?.message || err?.message || 'unknown';
+    res.status(500).json({
+      reply: `エラー: ${detail}`,
+      transaction: null,
+    });
   }
 }
