@@ -2,9 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Budget, Category } from '../types';
 import { getBudgets, getCategories, upsertBudget, deleteBudget } from '../api/client';
 
-interface Props {
-  yearMonth: string;
-}
+interface Props { yearMonth: string; }
 
 export default function BudgetSettings({ yearMonth }: Props) {
   const [budgets, setBudgets] = useState<Budget[]>([]);
@@ -14,33 +12,25 @@ export default function BudgetSettings({ yearMonth }: Props) {
 
   const load = async () => {
     const [b, c] = await Promise.all([getBudgets(yearMonth), getCategories('expense')]);
-    setBudgets(b);
-    setCategories(c);
+    setBudgets(b); setCategories(c);
     const map: Record<number, string> = {};
     b.forEach((bud) => { map[bud.category_id] = String(bud.amount); });
     setDrafts(map);
   };
-
   useEffect(() => { load(); }, [yearMonth]);
 
   const handleSave = async (categoryId: number) => {
     const val = parseFloat(drafts[categoryId] ?? '0');
     if (isNaN(val) || val < 0) return;
     setSaving(categoryId);
-    try {
-      await upsertBudget({ category_id: categoryId, year_month: yearMonth, amount: val });
-      await load();
-    } finally {
-      setSaving(null);
-    }
+    try { await upsertBudget({ category_id: categoryId, year_month: yearMonth, amount: val }); await load(); }
+    finally { setSaving(null); }
   };
 
   const handleDelete = async (categoryId: number) => {
     const bud = budgets.find((b) => b.category_id === categoryId);
-    if (!bud) return;
-    if (!confirm('この予算設定を削除しますか？')) return;
-    await deleteBudget(bud.id);
-    await load();
+    if (!bud || !confirm('この予算設定を削除しますか？')) return;
+    await deleteBudget(bud.id); await load();
   };
 
   return (
@@ -53,30 +43,16 @@ export default function BudgetSettings({ yearMonth }: Props) {
             <span className="text-sm text-gray-800 w-28 flex-shrink-0">{cat.icon ? `${cat.icon} ` : ''}{cat.name}</span>
             <div className="flex items-center gap-1 flex-1">
               <span className="text-gray-400 text-sm">¥</span>
-              <input
-                type="number"
-                min="0"
-                value={drafts[cat.id] ?? ''}
+              <input type="number" min="0" value={drafts[cat.id] ?? ''}
                 onChange={(e) => setDrafts((d) => ({ ...d, [cat.id]: e.target.value }))}
                 className="flex-1 border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                placeholder="0"
-              />
+                placeholder="0" />
             </div>
-            <button
-              onClick={() => handleSave(cat.id)}
-              disabled={saving === cat.id}
-              className="bg-indigo-600 text-white px-3 py-1 rounded-lg text-xs font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
-            >
+            <button onClick={() => handleSave(cat.id)} disabled={saving === cat.id}
+              className="bg-indigo-600 text-white px-3 py-1 rounded-lg text-xs font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors">
               {saving === cat.id ? '...' : '保存'}
             </button>
-            {hasBudget && (
-              <button
-                onClick={() => handleDelete(cat.id)}
-                className="text-xs text-gray-400 hover:text-red-500"
-              >
-                削除
-              </button>
-            )}
+            {hasBudget && <button onClick={() => handleDelete(cat.id)} className="text-xs text-gray-400 hover:text-red-500">削除</button>}
           </div>
         );
       })}

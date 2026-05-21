@@ -16,8 +16,7 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    setLoading(true);
-    setError('');
+    setLoading(true); setError('');
     Promise.all([getMonthlyReport(yearMonth), getTransactions({ year_month: yearMonth })])
       .then(([r, t]) => { setReport(r); setTransactions(t); })
       .catch((e) => setError(e.message))
@@ -28,18 +27,11 @@ export default function DashboardPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">ダッシュボード</h1>
-        <input
-          type="month"
-          value={yearMonth}
-          onChange={(e) => setYearMonth(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        />
+        <input type="month" value={yearMonth} onChange={(e) => setYearMonth(e.target.value)}
+          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
       </div>
-
       {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
-      {loading ? (
-        <p className="text-gray-400">読み込み中...</p>
-      ) : report && (
+      {loading ? <p className="text-gray-400">読み込み中...</p> : report && (
         <>
           <div className="grid grid-cols-3 gap-4 mb-6">
             {[
@@ -53,7 +45,6 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
-
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="bg-white rounded-xl border border-gray-100 p-4">
               <h3 className="text-sm font-semibold text-gray-700 mb-3">支出内訳</h3>
@@ -64,7 +55,6 @@ export default function DashboardPage() {
               <BudgetProgressBar items={report.by_category} />
             </div>
           </div>
-
           <div className="bg-white rounded-xl border border-gray-100 p-4">
             <h3 className="text-sm font-semibold text-gray-700 mb-3">最近の取引</h3>
             <TransactionList transactions={transactions} limit={5} />

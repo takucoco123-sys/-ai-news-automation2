@@ -5,7 +5,6 @@ import type {
   MonthlyReport, CategoryReport, TrendPoint,
 } from '../types';
 
-// ── Storage helpers ────────────────────────────────────────
 const KEYS = {
   categories: 'kakeibo_categories',
   transactions: 'kakeibo_transactions',
@@ -30,7 +29,6 @@ function nextId(): number {
 
 const now = () => new Date().toISOString();
 
-// ── Default categories ─────────────────────────────────────
 const DEFAULT_CATEGORIES: Omit<Category, 'id' | 'created_at'>[] = [
   { name: '食費',       type: 'expense', color: '#f59e0b', icon: '🍽️' },
   { name: '交通費',     type: 'expense', color: '#3b82f6', icon: '🚃' },
@@ -54,7 +52,6 @@ function seedCategories(): void {
 }
 seedCategories();
 
-// ── Categories ─────────────────────────────────────────────
 export async function getCategories(type?: 'income' | 'expense'): Promise<Category[]> {
   let cats = load<Category>(KEYS.categories);
   if (type) cats = cats.filter((c) => c.type === type);
@@ -83,7 +80,6 @@ export async function deleteCategory(id: number): Promise<void> {
   save(KEYS.categories, load<Category>(KEYS.categories).filter((c) => c.id !== id));
 }
 
-// ── Transactions ───────────────────────────────────────────
 function withCategoryInfo(txs: Transaction[]): Transaction[] {
   const catMap = Object.fromEntries(load<Category>(KEYS.categories).map((c) => [c.id, c]));
   return txs.map((t) => ({
@@ -131,7 +127,6 @@ export async function deleteTransaction(id: number): Promise<void> {
   save(KEYS.transactions, load<Transaction>(KEYS.transactions).filter((t) => t.id !== id));
 }
 
-// ── Budgets ────────────────────────────────────────────────
 export async function getBudgets(year_month: string): Promise<Budget[]> {
   const catMap = Object.fromEntries(load<Category>(KEYS.categories).map((c) => [c.id, c]));
   return load<Budget>(KEYS.budgets)
@@ -154,19 +149,15 @@ export async function deleteBudget(id: number): Promise<void> {
   save(KEYS.budgets, load<Budget>(KEYS.budgets).filter((b) => b.id !== id));
 }
 
-// ── Reports ────────────────────────────────────────────────
 export async function getMonthlyReport(year_month: string): Promise<MonthlyReport> {
   const cats = load<Category>(KEYS.categories);
   const catMap = Object.fromEntries(cats.map((c) => [c.id, c]));
   const txs = load<Transaction>(KEYS.transactions).filter((t) => t.date.startsWith(year_month));
   const budgets = load<Budget>(KEYS.budgets).filter((b) => b.year_month === year_month);
-
   const totalIncome = txs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0);
   const totalExpense = txs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-
   const byCat: Record<number, number> = {};
   txs.forEach((t) => { byCat[t.category_id] = (byCat[t.category_id] ?? 0) + t.amount; });
-
   const catIds = new Set([...Object.keys(byCat).map(Number), ...budgets.map((b) => b.category_id)]);
   const breakdown: CategoryReport[] = Array.from(catIds).map((catId) => {
     const total = byCat[catId] ?? 0;
@@ -180,7 +171,6 @@ export async function getMonthlyReport(year_month: string): Promise<MonthlyRepor
       percent_used: budget ? Math.round(total / budget * 1000) / 10 : null,
     };
   }).sort((a, b) => b.total - a.total);
-
   return { year_month, total_income: totalIncome, total_expense: totalExpense, balance: totalIncome - totalExpense, by_category: breakdown };
 }
 
@@ -200,7 +190,6 @@ export async function getTrend(months = 6): Promise<TrendPoint[]> {
   });
 }
 
-// ── データエクスポート/インポート ──────────────────────────
 export function exportData(): string {
   return JSON.stringify({
     categories: load(KEYS.categories),

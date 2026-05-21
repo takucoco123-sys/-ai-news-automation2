@@ -1,19 +1,12 @@
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import type { TrendPoint } from '../../types';
 
-interface Props {
-  data: TrendPoint[];
-}
+interface Props { data: TrendPoint[]; }
 
-const formatYen = (v: unknown) =>
-  typeof v === 'number' ? `¥${v.toLocaleString()}` : '';
+const formatYen = (v: unknown) => typeof v === 'number' ? `¥${v.toLocaleString()}` : '';
 
 export default function MonthlyBarChart({ data }: Props) {
-  if (data.length === 0)
-    return <p className="text-center text-gray-400 py-8">データなし</p>;
-
+  if (data.length === 0) return <p className="text-center text-gray-400 py-8">データなし</p>;
   return (
     <ResponsiveContainer width="100%" height={260}>
       <BarChart data={data} margin={{ top: 4, right: 16, left: 16, bottom: 4 }}>
