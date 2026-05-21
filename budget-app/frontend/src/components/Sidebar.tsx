@@ -11,7 +11,7 @@ const links = [
   { to: '/settings',     label: '設定',           icon: '⚙️' },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ onClose }: { onClose?: () => void }) {
   return (
     <aside className="w-60 h-full flex flex-col" style={{ background: 'rgba(13,11,9,0.98)', borderRight: '1px solid var(--gold-border)' }}>
       {/* Logo */}
@@ -34,6 +34,7 @@ export default function Sidebar() {
             key={to}
             to={to}
             end={to === '/'}
+            onClick={onClose}
             className={({ isActive }) =>
               `relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${
                 isActive
