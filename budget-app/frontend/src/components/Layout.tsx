@@ -2,11 +2,11 @@ import { Outlet, NavLink } from 'react-router-dom';
 import Sidebar from './Sidebar';
 
 const bottomTabs = [
-  { to: '/',             label: 'AI',     icon: '🤖', end: true },
-  { to: '/dashboard',    label: 'ホーム',  icon: '🏠' },
-  { to: '/transactions', label: '取引',    icon: '📝' },
-  { to: '/reports',      label: 'レポート', icon: '📊' },
-  { to: '/settings',     label: '設定',    icon: '⚙️' },
+  { to: '/',             label: 'AI',   icon: '🤖', end: true },
+  { to: '/dashboard',    label: 'ホーム', icon: '🏠' },
+  { to: '/transactions', label: '取引',  icon: '📝' },
+  { to: '/planning',     label: '計画',  icon: '📋' },
+  { to: '/settings',     label: '設定',  icon: '⚙️' },
 ];
 
 export default function Layout() {

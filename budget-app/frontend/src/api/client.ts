@@ -3,6 +3,7 @@ import type {
   Transaction, TransactionCreate,
   Budget, BudgetCreate,
   MonthlyReport, CategoryReport, TrendPoint,
+  PlannedExpense, PlanSettings,
 } from '../types';
 
 const KEYS = {
@@ -10,6 +11,8 @@ const KEYS = {
   transactions: 'kakeibo_transactions',
   budgets: 'kakeibo_budgets',
   nextId: 'kakeibo_next_id',
+  plannedExpenses: 'kakeibo_planned_expenses',
+  planSettings: 'kakeibo_plan_settings',
 };
 
 function load<T>(key: string): T[] {
@@ -297,4 +300,46 @@ function importCustomFormat(data: {
     }
   });
   save(KEYS.budgets, existingBudgets);
+}
+
+// ── Plan Settings ──────────────────────────────────────────────────────────
+
+const DEFAULT_PLAN: PlanSettings = {
+  working_days: 20,
+  savings_target: 30000,
+  living_budget: 20000,
+  fixed_income: 0,
+};
+
+export function getPlanSettings(): PlanSettings {
+  try { return { ...DEFAULT_PLAN, ...JSON.parse(localStorage.getItem(KEYS.planSettings) ?? '{}') }; }
+  catch { return DEFAULT_PLAN; }
+}
+
+export function savePlanSettings(settings: PlanSettings): void {
+  localStorage.setItem(KEYS.planSettings, JSON.stringify(settings));
+}
+
+// ── Planned Expenses ────────────────────────────────────────────────────────
+
+export function getPlannedExpenses(yearMonth: string): PlannedExpense[] {
+  return load<PlannedExpense>(KEYS.plannedExpenses)
+    .filter((e) => e.year_month === yearMonth || e.recurring)
+    .map((e) => ({ ...e, year_month: yearMonth }))
+    .sort((a, b) => a.due_day - b.due_day);
+}
+
+export function createPlannedExpense(body: Omit<PlannedExpense, 'id'>): PlannedExpense {
+  const items = load<PlannedExpense>(KEYS.plannedExpenses);
+  const item: PlannedExpense = { ...body, id: nextId() };
+  save(KEYS.plannedExpenses, [...items, item]);
+  return item;
+}
+
+export function updatePlannedExpense(id: number, body: Partial<PlannedExpense>): void {
+  save(KEYS.plannedExpenses, load<PlannedExpense>(KEYS.plannedExpenses).map((e) => e.id === id ? { ...e, ...body } : e));
+}
+
+export function deletePlannedExpense(id: number): void {
+  save(KEYS.plannedExpenses, load<PlannedExpense>(KEYS.plannedExpenses).filter((e) => e.id !== id));
 }

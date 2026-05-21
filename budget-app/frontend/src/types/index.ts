@@ -73,3 +73,21 @@ export interface TrendPoint {
   income: number;
   expense: number;
 }
+
+export interface PlannedExpense {
+  id: number;
+  name: string;
+  amount: number;
+  due_day: number;
+  recurring: boolean;
+  paid: boolean;
+  year_month: string;
+}
+
+export interface PlanSettings {
+  working_days: number;
+  savings_target: number;
+  living_budget: number;
+  fixed_income: number;
+}
+

@@ -4,6 +4,7 @@ const links = [
   { to: '/',             label: 'AIアシスタント', icon: '🤖' },
   { to: '/dashboard',    label: 'ダッシュボード', icon: '🏠' },
   { to: '/transactions', label: '取引',           icon: '📝' },
+  { to: '/planning',     label: '収支計画',       icon: '📋' },
   { to: '/categories',   label: 'カテゴリ',       icon: '🏷️' },
   { to: '/budgets',      label: '予算',           icon: '🎯' },
   { to: '/reports',      label: 'レポート',       icon: '📊' },
