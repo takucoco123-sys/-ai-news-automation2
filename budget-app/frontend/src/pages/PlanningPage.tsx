@@ -16,7 +16,7 @@ interface NewExpenseForm {
   recurring: boolean;
 }
 
-const BLANK_FORM: NewExpenseForm = { name: '', amount: '', due_day: '', recurring: true };
+const BLANK_FORM: NewExpenseForm = { name: '', amount: '', due_day: '1', recurring: true };
 
 export default function PlanningPage() {
   const [yearMonth, setYearMonth] = useState(thisMonth());
@@ -24,6 +24,7 @@ export default function PlanningPage() {
   const [settings, setSettings] = useState<PlanSettings>(getPlanSettings());
   const [form, setForm] = useState<NewExpenseForm>(BLANK_FORM);
   const [showForm, setShowForm] = useState(false);
+  const [formError, setFormError] = useState('');
   const [actualIncome, setActualIncome] = useState(0);
   const [actualExpense, setActualExpense] = useState(0);
 
@@ -45,11 +46,15 @@ export default function PlanningPage() {
   };
 
   const handleAddExpense = () => {
-    if (!form.name || !form.amount || !form.due_day) return;
+    if (!form.name.trim()) { setFormError('支出名を入力してください'); return; }
+    if (!form.amount || parseFloat(form.amount) <= 0) { setFormError('金額を入力してください'); return; }
+    const day = parseInt(form.due_day);
+    if (!form.due_day || isNaN(day) || day < 1 || day > 31) { setFormError('支払日は1〜31で入力してください'); return; }
+    setFormError('');
     createPlannedExpense({
-      name: form.name,
+      name: form.name.trim(),
       amount: parseFloat(form.amount),
-      due_day: parseInt(form.due_day),
+      due_day: day,
       recurring: form.recurring,
       paid: false,
       year_month: yearMonth,
@@ -206,6 +211,7 @@ export default function PlanningPage() {
 
         {showForm && (
           <div className="rounded-xl p-4 mb-4 space-y-3" style={{ background: 'rgba(201,168,76,0.04)', border: '1px solid var(--gold-border)' }}>
+            {formError && <p className="text-xs text-rose-400">{formError}</p>}
             <div className="grid grid-cols-2 gap-2">
               <div className="col-span-2">
                 <input type="text" placeholder="支出名 (例: バイク返済)" value={form.name}
@@ -231,7 +237,7 @@ export default function PlanningPage() {
             </label>
             <div className="flex gap-2">
               <button onClick={handleAddExpense} className="btn-gold flex-1 py-2 rounded-xl text-sm">追加</button>
-              <button onClick={() => { setShowForm(false); setForm(BLANK_FORM); }}
+              <button onClick={() => { setShowForm(false); setForm(BLANK_FORM); setFormError(''); }}
                 className="flex-1 py-2 rounded-xl text-sm"
                 style={{ background: 'var(--gold-subtle)', border: '1px solid var(--gold-border)', color: '#7a6f5e' }}>
                 キャンセル
