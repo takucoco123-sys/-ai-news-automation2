@@ -34,31 +34,32 @@ export default function BudgetSettings({ yearMonth }: Props) {
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 max-w-2xl mx-auto md:max-w-none">
       {categories.map((cat) => {
         const hasBudget = budgets.some((b) => b.category_id === cat.id);
         return (
-          <div key={cat.id} className="flex items-center gap-3 glass glass-hover rounded-xl px-4 py-3 transition-all">
-            <div
-              className="w-3 h-3 rounded-full flex-shrink-0"
-              style={{
-                backgroundColor: cat.color,
-                boxShadow: `0 0 10px ${cat.color}80`,
-              }}
-            />
-            <span className="text-sm text-gray-100 w-28 flex-shrink-0 truncate">{cat.icon ? `${cat.icon} ` : ''}{cat.name}</span>
+          <div key={cat.id} className="flex items-center gap-3 glass glass-hover rounded-xl px-4 py-3">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base flex-shrink-0"
+              style={{ background: `${cat.color}18`, border: `1px solid ${cat.color}30` }}>
+              {cat.icon || '📁'}
+            </div>
+            <span className="text-sm w-24 flex-shrink-0 truncate" style={{ color: '#e8e4da' }}>{cat.name}</span>
             <div className="flex items-center gap-1 flex-1">
-              <span className="text-gray-500 text-sm">¥</span>
+              <span className="text-sm" style={{ color: '#7a6f5e' }}>¥</span>
               <input type="number" min="0" value={drafts[cat.id] ?? ''}
                 onChange={(e) => setDrafts((d) => ({ ...d, [cat.id]: e.target.value }))}
-                className="flex-1 bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-400/50"
+                className="flex-1 rounded-lg px-2 py-1.5 text-sm focus:outline-none"
+                style={{ background: 'var(--gold-subtle)', border: '1px solid var(--gold-border)', color: '#e8e4da' }}
                 placeholder="0" />
             </div>
             <button onClick={() => handleSave(cat.id)} disabled={saving === cat.id}
-              className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:shadow-[0_0_16px_-4px_rgba(99,102,241,0.6)] disabled:opacity-50 transition-all">
+              className="btn-gold px-3 py-1.5 rounded-lg text-xs disabled:opacity-40">
               {saving === cat.id ? '...' : '保存'}
             </button>
-            {hasBudget && <button onClick={() => handleDelete(cat.id)} className="text-xs text-gray-500 hover:text-rose-400 transition-colors">削除</button>}
+            {hasBudget && (
+              <button onClick={() => handleDelete(cat.id)} className="text-xs transition-colors" style={{ color: '#666055' }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#fb7185')} onMouseLeave={(e) => (e.currentTarget.style.color = '#666055')}>削除</button>
+            )}
           </div>
         );
       })}

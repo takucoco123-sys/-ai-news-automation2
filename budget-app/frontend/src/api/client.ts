@@ -86,6 +86,7 @@ function withCategoryInfo(txs: Transaction[]): Transaction[] {
     ...t,
     category_name: catMap[t.category_id]?.name ?? '不明',
     category_color: catMap[t.category_id]?.color ?? '#6b7280',
+    category_icon: catMap[t.category_id]?.icon ?? null,
   }));
 }
 
@@ -103,7 +104,7 @@ export async function createTransaction(body: TransactionCreate): Promise<Transa
   if (cat.type !== body.type) throw new Error('種別がカテゴリと一致しません');
   const t: Transaction = {
     ...body, id: nextId(), description: body.description ?? null,
-    category_name: cat.name, category_color: cat.color,
+    category_name: cat.name, category_color: cat.color, category_icon: cat.icon ?? null,
     created_at: now(), updated_at: now(),
   };
   save(KEYS.transactions, [...load<Transaction>(KEYS.transactions), t]);
@@ -117,7 +118,7 @@ export async function updateTransaction(id: number, body: TransactionCreate): Pr
   const txs = load<Transaction>(KEYS.transactions);
   const updated = txs.map((t) =>
     t.id === id ? { ...t, ...body, description: body.description ?? null,
-      category_name: cat.name, category_color: cat.color, updated_at: now() } : t
+      category_name: cat.name, category_color: cat.color, category_icon: cat.icon ?? null, updated_at: now() } : t
   );
   save(KEYS.transactions, updated);
   return updated.find((t) => t.id === id)!;

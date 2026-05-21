@@ -2,19 +2,19 @@ import { useEffect, useState } from 'react';
 import type { Category, CategoryCreate } from '../types';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../api/client';
 
-const COLORS = ['#f59e0b','#3b82f6','#8b5cf6','#ec4899','#06b6d4','#ef4444','#f97316','#84cc16','#10b981','#6366f1','#d97706','#9ca3af'];
+const COLORS = ['#f59e0b','#3b82f6','#8b5cf6','#ec4899','#06b6d4','#ef4444','#f97316','#84cc16','#10b981','#c9a84c','#d97706','#9ca3af'];
 
 export default function CategoryManager() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [editing, setEditing] = useState<Category | null>(null);
-  const [form, setForm] = useState<CategoryCreate>({ name: '', type: 'expense', color: '#6366f1' });
+  const [form, setForm] = useState<CategoryCreate>({ name: '', type: 'expense', color: '#c9a84c' });
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState('');
 
   const load = () => getCategories().then(setCategories);
   useEffect(() => { load(); }, []);
 
-  const openNew = () => { setEditing(null); setForm({ name: '', type: 'expense', color: '#6366f1', icon: '' }); setError(''); setShowForm(true); };
+  const openNew = () => { setEditing(null); setForm({ name: '', type: 'expense', color: '#c9a84c', icon: '' }); setError(''); setShowForm(true); };
   const openEdit = (c: Category) => { setEditing(c); setForm({ name: c.name, type: c.type, color: c.color, icon: c.icon ?? '' }); setError(''); setShowForm(true); };
 
   const handleSave = async () => {
@@ -33,13 +33,12 @@ export default function CategoryManager() {
 
   const income = categories.filter((c) => c.type === 'income');
   const expense = categories.filter((c) => c.type === 'expense');
-
-  const inputCls = "w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-400/50 transition-all";
+  const inputStyle = { background: 'var(--gold-subtle)', border: '1px solid var(--gold-border)', color: '#e8e4da' };
 
   return (
-    <div>
+    <div className="max-w-2xl mx-auto md:max-w-none">
       <div className="flex justify-end mb-4">
-        <button onClick={openNew} className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:shadow-[0_0_24px_-4px_rgba(99,102,241,0.6)] transition-all">+ 追加</button>
+        <button onClick={openNew} className="btn-gold px-4 py-2 rounded-xl text-sm">+ 追加</button>
       </div>
       {showForm && (
         <div className="glass rounded-2xl p-5 mb-6 space-y-3">
@@ -47,53 +46,53 @@ export default function CategoryManager() {
           <div className="flex gap-2">
             {(['expense', 'income'] as const).map((t) => (
               <button key={t} type="button" onClick={() => setForm((f) => ({ ...f, type: t }))}
-                className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-all ${
-                  form.type === t
-                    ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white border-indigo-400/50 shadow-[0_0_20px_-6px_rgba(99,102,241,0.5)]'
-                    : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10'
-                }`}>{t === 'expense' ? '支出' : '収入'}</button>
+                className="flex-1 py-2 rounded-xl text-sm font-medium transition-all"
+                style={form.type === t
+                  ? { background: 'var(--gold)', color: '#1a1410' }
+                  : { background: 'var(--gold-subtle)', border: '1px solid var(--gold-border)', color: '#7a6f5e' }}>
+                {t === 'expense' ? '支出' : '収入'}
+              </button>
             ))}
           </div>
-          <input type="text" placeholder="カテゴリ名" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className={inputCls} />
-          <input type="text" placeholder="アイコン (絵文字, 任意)" value={form.icon ?? ''} onChange={(e) => setForm((f) => ({ ...f, icon: e.target.value }))} className={inputCls} />
+          <input type="text" placeholder="カテゴリ名" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+            className="w-full rounded-xl px-3 py-2.5 text-sm focus:outline-none" style={inputStyle} />
+          <input type="text" placeholder="アイコン (絵文字, 任意)" value={form.icon ?? ''} onChange={(e) => setForm((f) => ({ ...f, icon: e.target.value }))}
+            className="w-full rounded-xl px-3 py-2.5 text-sm focus:outline-none" style={inputStyle} />
           <div>
-            <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">カラー</p>
+            <p className="text-xs uppercase tracking-wider mb-2" style={{ color: '#7a6f5e' }}>カラー</p>
             <div className="flex gap-2 flex-wrap">
               {COLORS.map((c) => (
                 <button key={c} type="button" onClick={() => setForm((f) => ({ ...f, color: c }))}
-                  className={`w-7 h-7 rounded-full border-2 transition-all ${form.color === c ? 'border-white scale-110' : 'border-white/10 hover:border-white/30'}`}
-                  style={{
-                    backgroundColor: c,
-                    boxShadow: form.color === c ? `0 0 16px ${c}80` : 'none',
-                  }} />
+                  className="w-7 h-7 rounded-full transition-all"
+                  style={{ backgroundColor: c, outline: form.color === c ? `2px solid ${c}` : '2px solid transparent', outlineOffset: '2px', boxShadow: form.color === c ? `0 0 12px ${c}80` : 'none' }} />
               ))}
             </div>
           </div>
-          <div className="flex gap-2 pt-2">
-            <button onClick={handleSave} className="flex-1 bg-gradient-to-br from-indigo-500 to-purple-600 text-white py-2.5 rounded-xl text-sm font-medium hover:shadow-[0_0_24px_-4px_rgba(99,102,241,0.6)] transition-all">{editing ? '更新' : '追加'}</button>
-            <button onClick={() => setShowForm(false)} className="flex-1 bg-white/5 border border-white/10 text-gray-300 py-2.5 rounded-xl text-sm font-medium hover:bg-white/10 transition-all">キャンセル</button>
+          <div className="flex gap-2 pt-1">
+            <button onClick={handleSave} className="flex-1 btn-gold py-2.5 rounded-xl text-sm">{editing ? '更新' : '追加'}</button>
+            <button onClick={() => setShowForm(false)} className="flex-1 py-2.5 rounded-xl text-sm"
+              style={{ background: 'var(--gold-subtle)', border: '1px solid var(--gold-border)', color: '#7a6f5e' }}>キャンセル</button>
           </div>
         </div>
       )}
       {[{ label: '支出カテゴリ', items: expense }, { label: '収入カテゴリ', items: income }].map(({ label, items }) => (
         <div key={label} className="mb-6">
-          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">{label}</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#7a6f5e' }}>{label}</h3>
           <div className="space-y-2">
             {items.map((c) => (
-              <div key={c.id} className="flex items-center justify-between glass glass-hover rounded-xl px-4 py-3 transition-all">
+              <div key={c.id} className="flex items-center justify-between glass glass-hover rounded-xl px-4 py-3">
                 <div className="flex items-center gap-3">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{
-                      backgroundColor: c.color,
-                      boxShadow: `0 0 10px ${c.color}80`,
-                    }}
-                  />
-                  <span className="text-sm text-gray-100">{c.icon ? `${c.icon} ` : ''}{c.name}</span>
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base"
+                    style={{ background: `${c.color}18`, border: `1px solid ${c.color}30` }}>
+                    {c.icon || '📁'}
+                  </div>
+                  <span className="text-sm" style={{ color: '#e8e4da' }}>{c.name}</span>
                 </div>
                 <div className="flex gap-3">
-                  <button onClick={() => openEdit(c)} className="text-xs text-gray-500 hover:text-indigo-300 transition-colors">編集</button>
-                  <button onClick={() => handleDelete(c.id)} className="text-xs text-gray-500 hover:text-rose-400 transition-colors">削除</button>
+                  <button onClick={() => openEdit(c)} className="text-xs transition-colors" style={{ color: '#666055' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = '#c9a84c')} onMouseLeave={(e) => (e.currentTarget.style.color = '#666055')}>編集</button>
+                  <button onClick={() => handleDelete(c.id)} className="text-xs transition-colors" style={{ color: '#666055' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = '#fb7185')} onMouseLeave={(e) => (e.currentTarget.style.color = '#666055')}>削除</button>
                 </div>
               </div>
             ))}

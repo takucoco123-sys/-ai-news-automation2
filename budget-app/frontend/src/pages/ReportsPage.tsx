@@ -5,7 +5,7 @@ import MonthlyBarChart from '../components/charts/MonthlyBarChart';
 import ExpensePieChart from '../components/charts/ExpensePieChart';
 
 const thisMonth = () => new Date().toISOString().slice(0, 7);
-const formatYen = (v: number) => `¥${Math.abs(v).toLocaleString()}`;
+const fmt = (v: number) => `¥${Math.abs(v).toLocaleString()}`;
 
 export default function ReportsPage() {
   const [yearMonth, setYearMonth] = useState(thisMonth());
@@ -19,38 +19,39 @@ export default function ReportsPage() {
   }, [yearMonth]);
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
+    <div className="max-w-2xl mx-auto md:max-w-none">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">レポート</h1>
-          <p className="text-sm text-gray-500 mt-1">月次サマリーと推移分析</p>
+          <h1 className="text-2xl font-bold tracking-tight text-white">レポート</h1>
+          <p className="text-xs mt-1 uppercase tracking-widest" style={{ color: '#7a6f5e' }}>Monthly Report</p>
         </div>
         <input type="month" value={yearMonth} onChange={(e) => setYearMonth(e.target.value)}
-          className="glass rounded-xl px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400/50" />
+          className="rounded-xl px-3 py-1.5 text-sm focus:outline-none"
+          style={{ background: 'var(--gold-subtle)', border: '1px solid var(--gold-border)', color: '#c9a84c' }} />
       </div>
-      {loading ? <p className="text-gray-500 text-sm">読み込み中...</p> : (
+      {loading ? <p className="text-center py-12 text-sm" style={{ color: '#666055' }}>読み込み中...</p> : (
         <>
           {report && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-3 gap-3 mb-4">
               {[
-                { label: '収入', value: report.total_income, gradient: 'from-emerald-400 to-teal-300' },
-                { label: '支出', value: report.total_expense, gradient: 'from-rose-400 to-pink-300' },
-                { label: '残高', value: report.balance, gradient: report.balance >= 0 ? 'from-indigo-400 to-purple-300' : 'from-rose-400 to-orange-300' },
-              ].map(({ label, value, gradient }) => (
-                <div key={label} className="glass rounded-2xl p-5">
-                  <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">{label}</p>
-                  <p className={`text-2xl font-bold bg-gradient-to-br ${gradient} bg-clip-text text-transparent`}>{formatYen(value)}</p>
+                { label: '収入', value: report.total_income, color: '#4ade80' },
+                { label: '支出', value: report.total_expense, color: '#c9a84c' },
+                { label: '残高', value: report.balance, color: report.balance >= 0 ? '#c9a84c' : '#fb7185' },
+              ].map(({ label, value, color }) => (
+                <div key={label} className="glass rounded-2xl p-4">
+                  <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#7a6f5e' }}>{label}</p>
+                  <p className="text-lg font-bold" style={{ color }}>{fmt(value)}</p>
                 </div>
               ))}
             </div>
           )}
           <div className="glass rounded-2xl p-5 mb-4">
-            <h3 className="text-sm font-semibold text-gray-300 mb-4 tracking-wide">過去6ヶ月の収支推移</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: '#7a6f5e' }}>過去6ヶ月の収支推移</h3>
             <MonthlyBarChart data={trend} />
           </div>
           {report && (
             <div className="glass rounded-2xl p-5">
-              <h3 className="text-sm font-semibold text-gray-300 mb-4 tracking-wide">{yearMonth} 支出カテゴリ内訳</h3>
+              <h3 className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: '#7a6f5e' }}>支出カテゴリ内訳</h3>
               <ExpensePieChart data={report.by_category.filter((c) => c.total > 0)} />
             </div>
           )}

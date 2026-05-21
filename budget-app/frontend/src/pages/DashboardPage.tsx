@@ -3,6 +3,7 @@ import type { MonthlyReport, Transaction } from '../types';
 import { getMonthlyReport, getTransactions } from '../api/client';
 import ExpensePieChart from '../components/charts/ExpensePieChart';
 import BudgetProgressBar from '../components/charts/BudgetProgressBar';
+import DailyAreaChart from '../components/charts/DailyAreaChart';
 import TransactionList from '../components/TransactionList';
 
 const thisMonth = () => new Date().toISOString().slice(0, 7);
@@ -23,47 +24,56 @@ export default function DashboardPage() {
       .finally(() => setLoading(false));
   }, [yearMonth]);
 
+  const [y, m] = yearMonth.split('-');
+  const displayMonth = `${y}年${parseInt(m)}月`;
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">ダッシュボード</h1>
-          <p className="text-sm text-gray-500 mt-1">今月のサマリーと予算進捗</p>
-        </div>
+    <div className="max-w-2xl mx-auto md:max-w-none">
+      {/* Month selector */}
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-sm font-medium" style={{ color: '#7a6f5e' }}>ダッシュボード</h2>
         <input type="month" value={yearMonth} onChange={(e) => setYearMonth(e.target.value)}
-          className="glass rounded-xl px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400/50" />
+          className="rounded-xl px-3 py-1.5 text-sm focus:outline-none"
+          style={{ background: 'var(--gold-subtle)', border: '1px solid var(--gold-border)', color: '#c9a84c' }} />
       </div>
+
       {error && <p className="text-rose-400 text-sm mb-4">{error}</p>}
-      {loading ? <p className="text-gray-500 text-sm">読み込み中...</p> : report && (
+      {loading ? <p className="text-sm py-8 text-center" style={{ color: '#666055' }}>読み込み中...</p> : report && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            {[
-              { label: '収入', value: report.total_income, gradient: 'from-emerald-400 to-teal-300', glow: 'shadow-[0_0_40px_-12px_rgba(52,211,153,0.5)]', icon: '↗' },
-              { label: '支出', value: report.total_expense, gradient: 'from-rose-400 to-pink-300', glow: 'shadow-[0_0_40px_-12px_rgba(244,114,182,0.5)]', icon: '↘' },
-              { label: '残高', value: report.balance, gradient: report.balance >= 0 ? 'from-indigo-400 to-purple-300' : 'from-rose-400 to-orange-300', glow: report.balance >= 0 ? 'shadow-[0_0_40px_-12px_rgba(99,102,241,0.5)]' : 'shadow-[0_0_40px_-12px_rgba(244,114,182,0.5)]', icon: '◆' },
-            ].map(({ label, value, gradient, glow, icon }) => (
-              <div key={label} className={`glass rounded-2xl p-5 ${glow} relative overflow-hidden`}>
-                <div className={`absolute -top-8 -right-8 w-24 h-24 rounded-full bg-gradient-to-br ${gradient} opacity-10 blur-2xl`} />
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs text-gray-400 uppercase tracking-wider">{label}</p>
-                  <span className={`text-base bg-gradient-to-br ${gradient} bg-clip-text text-transparent`}>{icon}</span>
-                </div>
-                <p className={`text-2xl md:text-3xl font-bold bg-gradient-to-br ${gradient} bg-clip-text text-transparent`}>{formatYen(value)}</p>
-              </div>
-            ))}
+          {/* Main balance card */}
+          <div className="rounded-2xl p-6 mb-4 relative overflow-hidden" style={{ background: 'rgba(201,168,76,0.06)', border: '1px solid var(--gold-border)' }}>
+            <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full" style={{ background: 'radial-gradient(circle, rgba(201,168,76,0.12), transparent)' }} />
+            <p className="text-xs tracking-widest uppercase mb-2" style={{ color: '#7a6f5e' }}>今月の収支 · {displayMonth}</p>
+            <p className="text-4xl md:text-5xl font-bold mb-3 tracking-tight" style={{ color: report.balance >= 0 ? '#c9a84c' : '#fb7185' }}>
+              {report.balance >= 0 ? '' : '-'}{formatYen(report.balance)}
+            </p>
+            <div className="flex gap-6 text-sm">
+              <span style={{ color: '#7a8a7a' }}>収入 <span className="font-semibold" style={{ color: '#4ade80' }}>{formatYen(report.total_income)}</span></span>
+              <span style={{ color: '#8a7a7a' }}>支出 <span className="font-semibold" style={{ color: '#fb7185' }}>{formatYen(report.total_expense)}</span></span>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="glass rounded-2xl p-5">
-              <h3 className="text-sm font-semibold text-gray-300 mb-4 tracking-wide">支出内訳</h3>
+
+          {/* Charts row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="rounded-2xl p-5 glass">
+              <h3 className="text-xs font-semibold tracking-widest uppercase mb-4" style={{ color: '#7a6f5e' }}>支出内訳</h3>
               <ExpensePieChart data={report.by_category.filter((c) => c.total > 0)} />
             </div>
-            <div className="glass rounded-2xl p-5">
-              <h3 className="text-sm font-semibold text-gray-300 mb-4 tracking-wide">予算進捗</h3>
+            <div className="rounded-2xl p-5 glass">
+              <h3 className="text-xs font-semibold tracking-widest uppercase mb-4" style={{ color: '#7a6f5e' }}>予算進捗</h3>
               <BudgetProgressBar items={report.by_category} />
             </div>
           </div>
-          <div className="glass rounded-2xl p-5">
-            <h3 className="text-sm font-semibold text-gray-300 mb-4 tracking-wide">最近の取引</h3>
+
+          {/* Daily trend */}
+          <div className="rounded-2xl p-5 glass mb-4">
+            <h3 className="text-xs font-semibold tracking-widest uppercase mb-4" style={{ color: '#7a6f5e' }}>今月の推移</h3>
+            <DailyAreaChart transactions={transactions} yearMonth={yearMonth} />
+          </div>
+
+          {/* Recent transactions */}
+          <div className="rounded-2xl p-5 glass">
+            <h3 className="text-xs font-semibold tracking-widest uppercase mb-4" style={{ color: '#7a6f5e' }}>最近の取引</h3>
             <TransactionList transactions={transactions} limit={5} />
           </div>
         </>

@@ -7,13 +7,14 @@ export default function BudgetsPage() {
   const [yearMonth, setYearMonth] = useState(thisMonth());
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">予算管理</h1>
-          <p className="text-sm text-gray-500 mt-1">各カテゴリの月次予算を設定してください</p>
+          <h1 className="text-2xl font-bold tracking-tight text-white">予算管理</h1>
+          <p className="text-xs mt-1 uppercase tracking-widest" style={{ color: '#7a6f5e' }}>Budget Settings</p>
         </div>
         <input type="month" value={yearMonth} onChange={(e) => setYearMonth(e.target.value)}
-          className="glass rounded-xl px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400/50" />
+          className="rounded-xl px-3 py-1.5 text-sm focus:outline-none"
+          style={{ background: 'var(--gold-subtle)', border: '1px solid var(--gold-border)', color: '#c9a84c' }} />
       </div>
       <BudgetSettings yearMonth={yearMonth} />
     </div>
