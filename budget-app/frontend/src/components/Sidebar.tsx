@@ -1,12 +1,13 @@
 import { NavLink } from 'react-router-dom';
 
 const links = [
-  { to: '/',              label: 'ダッシュボード', icon: '🏠' },
-  { to: '/transactions',  label: '取引',           icon: '📝' },
-  { to: '/categories',    label: 'カテゴリ',       icon: '🏷️' },
-  { to: '/budgets',       label: '予算',           icon: '🎯' },
-  { to: '/reports',       label: 'レポート',       icon: '📊' },
-  { to: '/settings',      label: '設定',           icon: '⚙️' },
+  { to: '/',             label: 'AIアシスタント', icon: '🤖' },
+  { to: '/dashboard',    label: 'ダッシュボード', icon: '🏠' },
+  { to: '/transactions', label: '取引',           icon: '📝' },
+  { to: '/categories',   label: 'カテゴリ',       icon: '🏷️' },
+  { to: '/budgets',      label: '予算',           icon: '🎯' },
+  { to: '/reports',      label: 'レポート',       icon: '📊' },
+  { to: '/settings',     label: '設定',           icon: '⚙️' },
 ];
 
 interface Props {
