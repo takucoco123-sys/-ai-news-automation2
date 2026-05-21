@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Category, CategoryCreate } from '../types';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../api/client';
 
-const COLORS = ['#f59e0b','#3b82f6','#8b5cf6','#ec4899','#06b6d4','#ef4444','#f97316','#84cc16','#10b981','#6366f1','#d97706','#6b7280'];
+const COLORS = ['#f59e0b','#3b82f6','#8b5cf6','#ec4899','#06b6d4','#ef4444','#f97316','#84cc16','#10b981','#6366f1','#d97706','#9ca3af'];
 
 export default function CategoryManager() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -34,56 +34,66 @@ export default function CategoryManager() {
   const income = categories.filter((c) => c.type === 'income');
   const expense = categories.filter((c) => c.type === 'expense');
 
+  const inputCls = "w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-400/50 transition-all";
+
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold text-gray-800">カテゴリ管理</h2>
-        <button onClick={openNew} className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">+ 追加</button>
+      <div className="flex justify-end mb-4">
+        <button onClick={openNew} className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:shadow-[0_0_24px_-4px_rgba(99,102,241,0.6)] transition-all">+ 追加</button>
       </div>
       {showForm && (
-        <div className="bg-white border border-gray-200 rounded-xl p-4 mb-4 space-y-3">
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+        <div className="glass rounded-2xl p-5 mb-6 space-y-3">
+          {error && <p className="text-rose-400 text-sm">{error}</p>}
           <div className="flex gap-2">
             {(['expense', 'income'] as const).map((t) => (
               <button key={t} type="button" onClick={() => setForm((f) => ({ ...f, type: t }))}
-                className={`flex-1 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
-                  form.type === t ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-300'
+                className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-all ${
+                  form.type === t
+                    ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white border-indigo-400/50 shadow-[0_0_20px_-6px_rgba(99,102,241,0.5)]'
+                    : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10'
                 }`}>{t === 'expense' ? '支出' : '収入'}</button>
             ))}
           </div>
-          <input type="text" placeholder="カテゴリ名" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-          <input type="text" placeholder="アイコン (絵文字, 任意)" value={form.icon ?? ''} onChange={(e) => setForm((f) => ({ ...f, icon: e.target.value }))}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          <input type="text" placeholder="カテゴリ名" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className={inputCls} />
+          <input type="text" placeholder="アイコン (絵文字, 任意)" value={form.icon ?? ''} onChange={(e) => setForm((f) => ({ ...f, icon: e.target.value }))} className={inputCls} />
           <div>
-            <p className="text-xs text-gray-500 mb-1">カラー</p>
+            <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">カラー</p>
             <div className="flex gap-2 flex-wrap">
               {COLORS.map((c) => (
                 <button key={c} type="button" onClick={() => setForm((f) => ({ ...f, color: c }))}
-                  className={`w-6 h-6 rounded-full border-2 transition-transform ${form.color === c ? 'border-gray-800 scale-110' : 'border-transparent'}`}
-                  style={{ backgroundColor: c }} />
+                  className={`w-7 h-7 rounded-full border-2 transition-all ${form.color === c ? 'border-white scale-110' : 'border-white/10 hover:border-white/30'}`}
+                  style={{
+                    backgroundColor: c,
+                    boxShadow: form.color === c ? `0 0 16px ${c}80` : 'none',
+                  }} />
               ))}
             </div>
           </div>
-          <div className="flex gap-2">
-            <button onClick={handleSave} className="flex-1 bg-indigo-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">{editing ? '更新' : '追加'}</button>
-            <button onClick={() => setShowForm(false)} className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">キャンセル</button>
+          <div className="flex gap-2 pt-2">
+            <button onClick={handleSave} className="flex-1 bg-gradient-to-br from-indigo-500 to-purple-600 text-white py-2.5 rounded-xl text-sm font-medium hover:shadow-[0_0_24px_-4px_rgba(99,102,241,0.6)] transition-all">{editing ? '更新' : '追加'}</button>
+            <button onClick={() => setShowForm(false)} className="flex-1 bg-white/5 border border-white/10 text-gray-300 py-2.5 rounded-xl text-sm font-medium hover:bg-white/10 transition-all">キャンセル</button>
           </div>
         </div>
       )}
       {[{ label: '支出カテゴリ', items: expense }, { label: '収入カテゴリ', items: income }].map(({ label, items }) => (
-        <div key={label} className="mb-4">
-          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">{label}</h3>
+        <div key={label} className="mb-6">
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">{label}</h3>
           <div className="space-y-2">
             {items.map((c) => (
-              <div key={c.id} className="flex items-center justify-between bg-white rounded-lg border border-gray-100 px-4 py-2.5">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c.color }} />
-                  <span className="text-sm text-gray-800">{c.icon ? `${c.icon} ` : ''}{c.name}</span>
+              <div key={c.id} className="flex items-center justify-between glass glass-hover rounded-xl px-4 py-3 transition-all">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-3 h-3 rounded-full"
+                    style={{
+                      backgroundColor: c.color,
+                      boxShadow: `0 0 10px ${c.color}80`,
+                    }}
+                  />
+                  <span className="text-sm text-gray-100">{c.icon ? `${c.icon} ` : ''}{c.name}</span>
                 </div>
-                <div className="flex gap-2">
-                  <button onClick={() => openEdit(c)} className="text-xs text-gray-400 hover:text-indigo-600">編集</button>
-                  <button onClick={() => handleDelete(c.id)} className="text-xs text-gray-400 hover:text-red-500">削除</button>
+                <div className="flex gap-3">
+                  <button onClick={() => openEdit(c)} className="text-xs text-gray-500 hover:text-indigo-300 transition-colors">編集</button>
+                  <button onClick={() => handleDelete(c.id)} className="text-xs text-gray-500 hover:text-rose-400 transition-colors">削除</button>
                 </div>
               </div>
             ))}

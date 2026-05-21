@@ -38,21 +38,27 @@ export default function BudgetSettings({ yearMonth }: Props) {
       {categories.map((cat) => {
         const hasBudget = budgets.some((b) => b.category_id === cat.id);
         return (
-          <div key={cat.id} className="flex items-center gap-3 bg-white rounded-lg border border-gray-100 px-4 py-3">
-            <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: cat.color }} />
-            <span className="text-sm text-gray-800 w-28 flex-shrink-0">{cat.icon ? `${cat.icon} ` : ''}{cat.name}</span>
+          <div key={cat.id} className="flex items-center gap-3 glass glass-hover rounded-xl px-4 py-3 transition-all">
+            <div
+              className="w-3 h-3 rounded-full flex-shrink-0"
+              style={{
+                backgroundColor: cat.color,
+                boxShadow: `0 0 10px ${cat.color}80`,
+              }}
+            />
+            <span className="text-sm text-gray-100 w-28 flex-shrink-0 truncate">{cat.icon ? `${cat.icon} ` : ''}{cat.name}</span>
             <div className="flex items-center gap-1 flex-1">
-              <span className="text-gray-400 text-sm">¥</span>
+              <span className="text-gray-500 text-sm">¥</span>
               <input type="number" min="0" value={drafts[cat.id] ?? ''}
                 onChange={(e) => setDrafts((d) => ({ ...d, [cat.id]: e.target.value }))}
-                className="flex-1 border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                className="flex-1 bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-sm text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-400/50"
                 placeholder="0" />
             </div>
             <button onClick={() => handleSave(cat.id)} disabled={saving === cat.id}
-              className="bg-indigo-600 text-white px-3 py-1 rounded-lg text-xs font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors">
+              className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:shadow-[0_0_16px_-4px_rgba(99,102,241,0.6)] disabled:opacity-50 transition-all">
               {saving === cat.id ? '...' : '保存'}
             </button>
-            {hasBudget && <button onClick={() => handleDelete(cat.id)} className="text-xs text-gray-400 hover:text-red-500">削除</button>}
+            {hasBudget && <button onClick={() => handleDelete(cat.id)} className="text-xs text-gray-500 hover:text-rose-400 transition-colors">削除</button>}
           </div>
         );
       })}

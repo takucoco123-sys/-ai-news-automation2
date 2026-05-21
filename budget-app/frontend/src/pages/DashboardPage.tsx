@@ -25,38 +25,45 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">ダッシュボード</h1>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">ダッシュボード</h1>
+          <p className="text-sm text-gray-500 mt-1">今月のサマリーと予算進捗</p>
+        </div>
         <input type="month" value={yearMonth} onChange={(e) => setYearMonth(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+          className="glass rounded-xl px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400/50" />
       </div>
-      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
-      {loading ? <p className="text-gray-400">読み込み中...</p> : report && (
+      {error && <p className="text-rose-400 text-sm mb-4">{error}</p>}
+      {loading ? <p className="text-gray-500 text-sm">読み込み中...</p> : report && (
         <>
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             {[
-              { label: '収入', value: report.total_income, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-              { label: '支出', value: report.total_expense, color: 'text-red-500', bg: 'bg-red-50' },
-              { label: '残高', value: report.balance, color: report.balance >= 0 ? 'text-indigo-600' : 'text-red-600', bg: 'bg-indigo-50' },
-            ].map(({ label, value, color, bg }) => (
-              <div key={label} className={`${bg} rounded-xl p-4`}>
-                <p className="text-xs text-gray-500 mb-1">{label}</p>
-                <p className={`text-xl font-bold ${color}`}>{formatYen(value)}</p>
+              { label: '収入', value: report.total_income, gradient: 'from-emerald-400 to-teal-300', glow: 'shadow-[0_0_40px_-12px_rgba(52,211,153,0.5)]', icon: '↗' },
+              { label: '支出', value: report.total_expense, gradient: 'from-rose-400 to-pink-300', glow: 'shadow-[0_0_40px_-12px_rgba(244,114,182,0.5)]', icon: '↘' },
+              { label: '残高', value: report.balance, gradient: report.balance >= 0 ? 'from-indigo-400 to-purple-300' : 'from-rose-400 to-orange-300', glow: report.balance >= 0 ? 'shadow-[0_0_40px_-12px_rgba(99,102,241,0.5)]' : 'shadow-[0_0_40px_-12px_rgba(244,114,182,0.5)]', icon: '◆' },
+            ].map(({ label, value, gradient, glow, icon }) => (
+              <div key={label} className={`glass rounded-2xl p-5 ${glow} relative overflow-hidden`}>
+                <div className={`absolute -top-8 -right-8 w-24 h-24 rounded-full bg-gradient-to-br ${gradient} opacity-10 blur-2xl`} />
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs text-gray-400 uppercase tracking-wider">{label}</p>
+                  <span className={`text-base bg-gradient-to-br ${gradient} bg-clip-text text-transparent`}>{icon}</span>
+                </div>
+                <p className={`text-2xl md:text-3xl font-bold bg-gradient-to-br ${gradient} bg-clip-text text-transparent`}>{formatYen(value)}</p>
               </div>
             ))}
           </div>
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-white rounded-xl border border-gray-100 p-4">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">支出内訳</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="glass rounded-2xl p-5">
+              <h3 className="text-sm font-semibold text-gray-300 mb-4 tracking-wide">支出内訳</h3>
               <ExpensePieChart data={report.by_category.filter((c) => c.total > 0)} />
             </div>
-            <div className="bg-white rounded-xl border border-gray-100 p-4">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">予算進捗</h3>
+            <div className="glass rounded-2xl p-5">
+              <h3 className="text-sm font-semibold text-gray-300 mb-4 tracking-wide">予算進捗</h3>
               <BudgetProgressBar items={report.by_category} />
             </div>
           </div>
-          <div className="bg-white rounded-xl border border-gray-100 p-4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">最近の取引</h3>
+          <div className="glass rounded-2xl p-5">
+            <h3 className="text-sm font-semibold text-gray-300 mb-4 tracking-wide">最近の取引</h3>
             <TransactionList transactions={transactions} limit={5} />
           </div>
         </>

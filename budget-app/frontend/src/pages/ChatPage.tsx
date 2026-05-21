@@ -11,7 +11,7 @@ interface ChatMessage extends ApiMessage {
 const today = new Date().toISOString().slice(0, 10);
 
 const GREETING =
-  'こんにちは！\n今日はお金を使いましたか？\n\n「コンビニで480円」「スタバで650円使った」のように教えてもらえると自動で記録します 😊';
+  'こんにちは。\n今日はお金を使いましたか？\n\n「コンビニで480円」「スタバで650円使った」のように教えてくれれば、自動で記録します。';
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -104,33 +104,40 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex flex-col max-w-xl mx-auto h-full">
-      <h1 className="text-xl font-bold text-gray-900 mb-4 hidden md:block flex-shrink-0">
-        AIアシスタント
-      </h1>
+    <div className="flex flex-col max-w-2xl mx-auto h-full">
+      <div className="hidden md:flex items-center gap-3 mb-6 flex-shrink-0">
+        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_24px_-6px_rgba(99,102,241,0.6)]">
+          <span className="text-xl">🤖</span>
+        </div>
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-white">AIアシスタント</h1>
+          <p className="text-xs text-gray-500">Claude Haiku 4.5</p>
+        </div>
+      </div>
 
-      {/* Messages */}
       <div
-        className="flex-1 overflow-y-auto space-y-3 pb-3 max-h-[calc(100vh-200px)]"
+        className="flex-1 overflow-y-auto space-y-4 pb-3"
         style={{ maxHeight: 'calc(100dvh - 200px)' }}
       >
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             {m.role === 'assistant' && (
-              <span className="text-xl mr-2 mt-1 flex-shrink-0">🤖</span>
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mr-2 flex-shrink-0 shadow-[0_0_16px_-4px_rgba(99,102,241,0.5)]">
+                <span className="text-sm">🤖</span>
+              </div>
             )}
             <div
               className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap break-words ${
                 m.role === 'user'
-                  ? 'bg-indigo-600 text-white rounded-br-sm'
-                  : 'bg-white border border-gray-200 text-gray-800 rounded-bl-sm shadow-sm'
+                  ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-br-sm shadow-[0_4px_24px_-8px_rgba(99,102,241,0.6)]'
+                  : 'glass text-gray-100 rounded-bl-sm'
               }`}
             >
               {m.content}
               {m.savedTx && (
-                <div className="mt-2 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 text-xs text-emerald-700">
-                  ✅ {m.savedTx.type === 'expense' ? '支出' : '収入'} ¥{m.savedTx.amount.toLocaleString()}{' '}
-                  ({m.savedTx.category_name}) を保存しました
+                <div className="mt-3 bg-emerald-500/10 border border-emerald-400/30 rounded-xl px-3 py-2 text-xs text-emerald-300 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+                  {m.savedTx.type === 'expense' ? '支出' : '収入'} ¥{m.savedTx.amount.toLocaleString()} ({m.savedTx.category_name}) を保存
                 </div>
               )}
             </div>
@@ -139,12 +146,14 @@ export default function ChatPage() {
 
         {loading && (
           <div className="flex justify-start">
-            <span className="text-xl mr-2">🤖</span>
-            <div className="bg-white border border-gray-200 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mr-2 shadow-[0_0_16px_-4px_rgba(99,102,241,0.5)]">
+              <span className="text-sm">🤖</span>
+            </div>
+            <div className="glass rounded-2xl rounded-bl-sm px-4 py-3">
               <span className="flex gap-1 items-center">
-                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0ms]" />
-                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]" />
-                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:300ms]" />
+                <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce [animation-delay:0ms]" />
+                <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce [animation-delay:150ms]" />
+                <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce [animation-delay:300ms]" />
               </span>
             </div>
           </div>
@@ -153,8 +162,7 @@ export default function ChatPage() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
-      <div className="flex gap-2 pt-3 border-t border-gray-100 mt-2 flex-shrink-0">
+      <div className="flex gap-2 pt-3 border-t border-white/5 mt-2 flex-shrink-0">
         <input
           ref={inputRef}
           value={input}
@@ -166,13 +174,13 @@ export default function ChatPage() {
             }
           }}
           placeholder="例: コンビニで500円使った"
-          className="flex-1 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          className="flex-1 glass rounded-2xl px-4 py-3 text-sm text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-400/50 focus:border-indigo-400/30 transition-all"
           disabled={loading}
         />
         <button
           onClick={send}
           disabled={loading || !input.trim()}
-          className="bg-indigo-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-indigo-700 disabled:opacity-40 transition-colors"
+          className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white px-5 py-3 rounded-2xl text-sm font-medium hover:shadow-[0_0_24px_-4px_rgba(99,102,241,0.6)] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
           送信
         </button>

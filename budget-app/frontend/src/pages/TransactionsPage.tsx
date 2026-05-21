@@ -23,21 +23,24 @@ export default function TransactionsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">取引</h1>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">取引</h1>
+          <p className="text-sm text-gray-500 mt-1">収入・支出の記録</p>
+        </div>
         <div className="flex gap-2">
           <input type="month" value={yearMonth} onChange={(e) => setYearMonth(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-          <button onClick={openNew} className="bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">+ 追加</button>
+            className="glass rounded-xl px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400/50" />
+          <button onClick={openNew} className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:shadow-[0_0_24px_-4px_rgba(99,102,241,0.6)] transition-all">+ 追加</button>
         </div>
       </div>
       {showForm && (
-        <div className="bg-white rounded-xl border border-gray-200 p-5 mb-4">
-          <h2 className="text-sm font-semibold text-gray-700 mb-3">{editing ? '取引を編集' : '新しい取引'}</h2>
+        <div className="glass rounded-2xl p-6 mb-4">
+          <h2 className="text-sm font-semibold text-gray-300 mb-4 tracking-wide">{editing ? '取引を編集' : '新しい取引'}</h2>
           <TransactionForm editing={editing} onSave={handleSave} onCancel={handleCancel} />
         </div>
       )}
-      {loading ? <p className="text-gray-400 text-sm">読み込み中...</p> : <TransactionList transactions={transactions} onEdit={openEdit} onDeleted={load} />}
+      {loading ? <p className="text-gray-500 text-sm">読み込み中...</p> : <TransactionList transactions={transactions} onEdit={openEdit} onDeleted={load} />}
     </div>
   );
 }
