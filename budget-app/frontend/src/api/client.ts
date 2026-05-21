@@ -202,7 +202,99 @@ export function exportData(): string {
 
 export function importData(json: string): void {
   const data = JSON.parse(json);
-  if (data.categories) save(KEYS.categories, data.categories);
-  if (data.transactions) save(KEYS.transactions, data.transactions);
-  if (data.budgets) save(KEYS.budgets, data.budgets);
+
+  // Standard backup format
+  if (data.categories || data.transactions || data.budgets) {
+    if (data.categories) save(KEYS.categories, data.categories);
+    if (data.transactions) save(KEYS.transactions, data.transactions);
+    if (data.budgets) save(KEYS.budgets, data.budgets);
+    return;
+  }
+
+  // Custom personal finance format (profile/income_sources/fixed_expenses/may_2026 etc.)
+  if (data.profile || data.income_sources || data.fixed_expenses || data.may_2026) {
+    importCustomFormat(data);
+    return;
+  }
+
+  throw new Error('対応していないファイル形式です');
+}
+
+function importCustomFormat(data: {
+  income_sources?: { name: string }[];
+  fixed_expenses?: { name: string; amount: number }[];
+  may_2026?: { income?: number; expenses?: Record<string, number> };
+  june_2026?: { special_income?: { name: string; amount: number } };
+}): void {
+  const cats = load<Category>(KEYS.categories);
+  const catByName = new Map(cats.map((c) => [c.name, c]));
+
+  const upsertCat = (name: string, type: 'income' | 'expense', icon: string, color: string): Category => {
+    const existing = catByName.get(name);
+    if (existing) return existing;
+    const cat: Category = { id: nextId(), name, type, color, icon, created_at: now() };
+    cats.push(cat);
+    catByName.set(name, cat);
+    return cat;
+  };
+
+  // Add income source categories
+  const incomeColors = ['#10b981', '#059669', '#047857', '#c9a84c', '#34d399'];
+  (data.income_sources ?? []).forEach((src, i) => {
+    upsertCat(src.name, 'income', '💰', incomeColors[i % incomeColors.length]);
+  });
+
+  // Add fixed expense categories
+  const expenseClean = (name: string) => name.replace(/（[^）]*）/, '').replace(/\s*\+\s*n8n/, '').trim();
+  (data.fixed_expenses ?? []).forEach((exp) => {
+    upsertCat(expenseClean(exp.name), 'expense', '💸', '#8b5cf6');
+  });
+
+  save(KEYS.categories, cats);
+
+  // Add transactions from may_2026
+  const txs = load<Transaction>(KEYS.transactions);
+  const addTx = (amount: number, type: 'income' | 'expense', catName: string, desc: string, date: string) => {
+    const cat = catByName.get(catName) ?? cats.find((c) => c.type === type);
+    if (!cat) return;
+    txs.push({
+      id: nextId(), amount, type,
+      category_id: cat.id, category_name: cat.name,
+      category_color: cat.color, category_icon: cat.icon ?? null,
+      description: desc, date,
+      created_at: now(), updated_at: now(),
+    });
+  };
+
+  if (data.may_2026) {
+    if (data.may_2026.income) {
+      const incomeCat = (data.income_sources?.[0]?.name) ?? '給与';
+      addTx(data.may_2026.income, 'income', incomeCat, '5月収入合計', '2026-05-31');
+    }
+    for (const [name, amount] of Object.entries(data.may_2026.expenses ?? {})) {
+      const cleanName = expenseClean(name.split('・')[0]);
+      addTx(amount, 'expense', cleanName, name, '2026-05-31');
+    }
+  }
+
+  if (data.june_2026?.special_income) {
+    const si = data.june_2026.special_income;
+    addTx(si.amount, 'income', data.income_sources?.[0]?.name ?? '給与', si.name, '2026-06-01');
+  }
+
+  save(KEYS.transactions, txs);
+
+  // Add budgets for fixed_expenses (current month)
+  const ym = new Date().toISOString().slice(0, 7);
+  const existingBudgets = load<Budget>(KEYS.budgets);
+  (data.fixed_expenses ?? []).forEach((exp) => {
+    const name = expenseClean(exp.name);
+    const cat = catByName.get(name);
+    if (!cat) return;
+    const alreadyExists = existingBudgets.some((b) => b.category_id === cat.id && b.year_month === ym);
+    if (!alreadyExists) {
+      existingBudgets.push({ id: nextId(), category_id: cat.id, year_month: ym, amount: exp.amount, category_name: cat.name, category_color: cat.color });
+    }
+  });
+  save(KEYS.budgets, existingBudgets);
 }
