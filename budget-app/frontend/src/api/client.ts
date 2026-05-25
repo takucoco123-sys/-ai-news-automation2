@@ -309,6 +309,7 @@ const DEFAULT_PLAN: PlanSettings = {
   savings_target: 30000,
   living_budget: 20000,
   fixed_income: 0,
+  monthly_income_target: 0,
 };
 
 export function getPlanSettings(): PlanSettings {

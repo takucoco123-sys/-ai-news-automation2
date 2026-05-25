@@ -84,7 +84,8 @@ export default function PlanningPage() {
   const variableIncomeNeeded = Math.max(0, totalMonthlyNeed - settings.fixed_income);
   const dailyTarget = settings.working_days > 0 ? variableIncomeNeeded / settings.working_days : 0;
 
-  const progressPct = totalMonthlyNeed > 0 ? Math.min(100, (actualIncome / totalMonthlyNeed) * 100) : 0;
+  const effectiveTarget = settings.monthly_income_target > 0 ? settings.monthly_income_target : totalMonthlyNeed;
+  const progressPct = effectiveTarget > 0 ? Math.min(100, (actualIncome / effectiveTarget) * 100) : 0;
 
   const [y, m] = yearMonth.split('-');
   const today = new Date();
@@ -92,7 +93,7 @@ export default function PlanningPage() {
   const daysPassed = yearMonth === thisMonth() ? today.getDate() : daysInMonth;
   const daysLeft = Math.max(0, daysInMonth - daysPassed);
 
-  const shortfall = Math.max(0, totalMonthlyNeed - actualIncome);
+  const shortfall = Math.max(0, effectiveTarget - actualIncome);
   const dailyNeededNow = daysLeft > 0 ? shortfall / daysLeft : 0;
 
   const inputCls = "rounded-xl px-3 py-2 text-sm focus:outline-none w-full";
@@ -108,6 +109,64 @@ export default function PlanningPage() {
         <input type="month" value={yearMonth} onChange={(e) => setYearMonth(e.target.value)}
           className="rounded-xl px-3 py-1.5 text-sm focus:outline-none"
           style={{ background: 'var(--gold-subtle)', border: '1px solid var(--gold-border)', color: '#c9a84c' }} />
+      </div>
+
+      {/* ── Monthly Income Target Card ── */}
+      <div className="rounded-2xl p-5" style={{ background: 'rgba(201,168,76,0.04)', border: '1px solid var(--gold-border)' }}>
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <p className="text-xs tracking-widest uppercase" style={{ color: '#7a6f5e' }}>月間目標稼ぎ</p>
+            {settings.monthly_income_target === 0 && (
+              <p className="text-[10px] mt-0.5" style={{ color: '#4a4035' }}>自動計算（支出合計 + 貯金目標）</p>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs" style={{ color: '#7a6f5e' }}>¥</span>
+            <input
+              type="number" min={0} placeholder="自動"
+              value={settings.monthly_income_target || ''}
+              onChange={(e) => handleSettingChange('monthly_income_target', parseFloat(e.target.value) || 0)}
+              className="rounded-xl px-3 py-1.5 text-sm w-36 text-right focus:outline-none"
+              style={{ background: 'var(--gold-subtle)', border: '1px solid var(--gold-border)', color: '#c9a84c' }}
+            />
+            {settings.monthly_income_target > 0 && (
+              <button
+                onClick={() => handleSettingChange('monthly_income_target', 0)}
+                className="text-[10px] px-2 py-1 rounded-lg"
+                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#7a6f5e' }}
+              >
+                リセット
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-end justify-between mb-3">
+          <div>
+            <p className="text-3xl font-bold" style={{ color: '#c9a84c' }}>{fmt(effectiveTarget)}</p>
+            <p className="text-xs mt-0.5" style={{ color: '#7a6f5e' }}>
+              稼いだ <span style={{ color: '#4ade80' }}>{fmt(actualIncome)}</span>
+              　残り <span style={{ color: shortfall > 0 ? '#fb7185' : '#4ade80' }}>{fmt(shortfall)}</span>
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-2xl font-bold" style={{ color: progressPct >= 100 ? '#4ade80' : '#e8e4da' }}>
+              {Math.round(progressPct)}%
+            </p>
+            <p className="text-[10px]" style={{ color: '#7a6f5e' }}>達成</p>
+          </div>
+        </div>
+
+        <div className="w-full rounded-full h-3 overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          <div className="h-3 rounded-full transition-all duration-700"
+            style={{
+              width: `${progressPct}%`,
+              background: progressPct >= 100
+                ? 'linear-gradient(90deg, #4ade80, #22c55e)'
+                : 'linear-gradient(90deg, #c9a84c, #dfc17a)',
+              boxShadow: '0 0 10px rgba(201,168,76,0.5)',
+            }} />
+        </div>
       </div>
 
       {/* ── Daily Target Card ── */}
@@ -127,25 +186,11 @@ export default function PlanningPage() {
               {fmt(dailyNeededNow)} / 日
             </p>
             <p className="text-xs mt-1" style={{ color: '#7a6f5e' }}>
-              現在の収入 {fmt(actualIncome)} / 目標 {fmt(totalMonthlyNeed)}
+              現在の収入 {fmt(actualIncome)} / 目標 {fmt(effectiveTarget)}
             </p>
           </div>
         )}
 
-        {/* Progress bar */}
-        <div className="mt-4">
-          <div className="flex justify-between text-xs mb-1" style={{ color: '#7a6f5e' }}>
-            <span>達成率</span><span>{Math.round(progressPct)}%</span>
-          </div>
-          <div className="w-full rounded-full h-2 overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-            <div className="h-2 rounded-full transition-all duration-700"
-              style={{
-                width: `${progressPct}%`,
-                background: progressPct >= 100 ? 'linear-gradient(90deg, #4ade80, #22c55e)' : 'linear-gradient(90deg, #c9a84c, #dfc17a)',
-                boxShadow: '0 0 8px rgba(201,168,76,0.4)',
-              }} />
-          </div>
-        </div>
       </div>
 
       {/* ── Settings ── */}

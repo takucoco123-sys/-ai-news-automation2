@@ -89,5 +89,6 @@ export interface PlanSettings {
   savings_target: number;
   living_budget: number;
   fixed_income: number;
+  monthly_income_target: number;
 }
 
